@@ -9,15 +9,15 @@ import network.repository.UserRepository;
  * @date 22/09/2024
  */
 
-public class UserRepositoryDb implements UserRepository {
+public class UserRepositoryImpl implements UserRepository {
 
     @Override
     public void save(User user) {
-        // Save user to database
+        FakeDatabase.saveUser(user);
     }
 
     @Override
     public User findByName(String name) {
-        return null;
+        return FakeDatabase.findUser(name);
     }
 }

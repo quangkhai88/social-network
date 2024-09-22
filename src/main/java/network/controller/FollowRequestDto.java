@@ -11,6 +11,7 @@ import lombok.Data;
 
 @Data
 @Builder
+@AllArgsConstructor
 public class FollowRequestDto {
     private String followerName;
     private String followingName;

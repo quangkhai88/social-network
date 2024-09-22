@@ -15,6 +15,13 @@ import java.util.List;
 @Builder
 public class WallResponseDto {
 
+    private final String userName;
     private final List<String> posts;
+
+    public void print() {
+        System.out.println("========================");
+        System.out.println("Wall of " + this.userName);
+        this.posts.forEach(System.out::println);
+    }
 
 }

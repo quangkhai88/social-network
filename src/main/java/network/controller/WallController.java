@@ -23,10 +23,11 @@ public class WallController {
         this.wallService = wallService;
     }
 
-    public WallResponseDto displayWall(String name) {
+    public WallResponseDto getWallOf(String name) {
         User user = userService.findByName(name);
         List<Post> wallPosts = this.wallService.getWallPostsFor(user);
         return WallResponseDto.builder()
+                .userName(user.getName())
                 .posts(wallPosts.stream().map(Post::toString).collect(Collectors.toList()))
                 .build();
     }

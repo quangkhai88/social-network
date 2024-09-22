@@ -23,4 +23,10 @@ public class FollowController {
         String followingName = followRequest.getFollowingName();
         this.followService.follow(userService.findByName(followerName), userService.findByName(followingName));
     }
+
+    public void unfollow(FollowRequestDto followRequest) {
+        String followerName = followRequest.getFollowerName();
+        String followingName = followRequest.getFollowingName();
+        this.followService.unfollow(userService.findByName(followerName), userService.findByName(followingName));
+    }
 }
