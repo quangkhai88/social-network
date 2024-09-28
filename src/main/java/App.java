@@ -7,35 +7,78 @@ import network.service.PostServiceImpl;
 import network.service.UserServiceImpl;
 import network.service.WallServiceImpl;
 
+import java.util.Scanner;
+
 public class App {
-    public static void main( String[] args ) throws InterruptedException {
-        System.out.println( "Hello World!" );
 
+    public static void main(String[] args) {
 
-        // done by Spring boot
-        UserController userController = new UserController(new UserServiceImpl(new UserRepositoryImpl()));
-        PostController postController = new PostController(new PostServiceImpl(new PostRepositoryImpl()), new UserServiceImpl(new UserRepositoryImpl()));
-        FollowController followController = new FollowController(new FollowServiceImpl(new FollowRepositoryImpl()), new UserServiceImpl(new UserRepositoryImpl()));
-        WallController wallController = new WallController(new UserServiceImpl(new UserRepositoryImpl()),
+        App app = new App();
+        app.run();
+    }
+
+    private void run() {
+        Scanner scanner = new Scanner(System.in);
+        while (true) {
+            System.out.print("> ");
+            String input = scanner.nextLine();
+            if(input.equals("exit")) break;
+            try {
+                processInput(input);
+            } catch (Exception e) {
+                System.out.println(e);
+            }
+        }
+    }
+
+    private UserController userController = new UserController(new UserServiceImpl(new UserRepositoryImpl()));
+    private final PostController postController = new PostController(new PostServiceImpl(new PostRepositoryImpl()), new UserServiceImpl(new UserRepositoryImpl()));
+    private final FollowController followController = new FollowController(new FollowServiceImpl(new FollowRepositoryImpl()), new UserServiceImpl(new UserRepositoryImpl()));
+    private final WallController wallController = new WallController(new UserServiceImpl(new UserRepositoryImpl()),
                                                             new WallServiceImpl(new PostRepositoryImpl(), new FollowRepositoryImpl()));
-        userController.createUser("Alice");
-        userController.createUser("Bob");
-        postController.post(new PostRequestDto("Alice", "Hello World"));
-        Thread.sleep(1000);
-        postController.post(new PostRequestDto("Bob", "I am Bob"));
+    private void processInput(String input) {
+        if (input.contains("->")) {
+            String[] parts = input.split(" -> ");
+            String username = parts[0].trim();
+            String message = parts[1].trim();
+            post(username, message);
+        } else if (input.contains("unfollows")) {
+            String[] parts = input.split(" unfollows ");
+            String follower = parts[0].trim();
+            String followee = parts[1].trim();
+            unfollow(follower, followee);
+        } else if (input.contains("follows")) {
+            String[] parts = input.split(" follows ");
+            String follower = parts[0].trim();
+            String followee = parts[1].trim();
+            follow(follower, followee);
+        } else if (input.contains("wall")) {
+            String username = input.replace("wall ", "").trim();
+            wall(username);
+        } else {
+            String username = input.trim();
+            read(username);
+        }
+    }
 
-        Thread.sleep(1000);
-        wallController.getWallOf("Alice").print();
-        wallController.getWallOf("Bob").print();
+    private void unfollow(String follower, String followee) {
+        followController.unfollow(new FollowRequestDto(follower, followee));
+    }
 
-        followController.follow(new FollowRequestDto("Alice", "Bob"));
-        wallController.getWallOf("Alice").print();
-        wallController.getWallOf("Bob").print();
+    private void read(String username) {
+        postController.getPosts(username).forEach(System.out::println);
+    }
 
-        followController.unfollow(new FollowRequestDto("Alice", "Bob"));
-        postController.post(new PostRequestDto("Alice", "Message of Alice"));
-        wallController.getWallOf("Alice").print();
-        wallController.getWallOf("Bob").print();
+    private void wall(String username) {
+        wallController.getWallOf(username).print();
+    }
 
+    private void follow(String follower, String followee) {
+        followController.follow(new FollowRequestDto(follower, followee));
+    }
+
+
+    private void post(String username, String message) {
+        postController.post(new PostRequestDto(username, message));
     }
 }
